@@ -19,3 +19,30 @@ function csv2mat()
     uilabel(fig, 'Text', '', 'Tag', 'StatusLabel', 'Position', [20, 50, 560, 22], ...
         'HorizontalAlignment', 'left');
 end
+
+function loadCSVFile(fig)
+    % Prompt user to select a CSV file
+    [file, path] = uigetfile('*.csv', 'Select a CSV File');
+    if isequal(file, 0)
+        return;
+    end
+
+    % Read CSV file
+    fullPath = fullfile(path, file);
+    try
+        data = readtable(fullPath);
+        % Display data in the table
+        table = findobj(fig, 'Tag', 'PreviewTable');
+        table.Data = data;
+        table.ColumnName = data.Properties.VariableNames;
+
+        % Store data in app figure for later use
+        fig.UserData = data;
+
+        % Update status
+        statusLabel = findobj(fig, 'Tag', 'StatusLabel');
+        statusLabel.Text = sprintf('Loaded file: %s', file);
+    catch ME
+        uialert(fig, sprintf('Error loading file: %s', ME.message), 'Error');
+    end
+end
